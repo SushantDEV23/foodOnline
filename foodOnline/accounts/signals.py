@@ -5,7 +5,6 @@ from django.dispatch import receiver
 #below is the receiver function
 @receiver(post_save, sender=User)
 def post_save_create_profile(sender, instance, created, **kwargs):
-    print(created)
     if created:
         UserProfile.objects.create(user=instance)
     else:
@@ -15,7 +14,6 @@ def post_save_create_profile(sender, instance, created, **kwargs):
         except:
             #create user profile if not created
             UserProfile.objects.create(user=instance)
-        print('User is updated')
 
 @receiver(pre_save, sender=User)
 def pre_save_profile_receiver(sender, instance, **kwargs):
