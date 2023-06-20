@@ -4,9 +4,31 @@ from .forms import UserForm
 from vendor.forms import VendorForm
 from .models import User, UserProfile
 from django.contrib import messages
+from django.contrib.auth import authenticate, login as login_user, logout as logout_user
+from .utils import detectUser
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import PermissionDenied
+
+#Restricting the vendor from accessing customer page
+def check_role_vendor(user):               #passed inside decorator
+    if user.role == 1:                     #gives the permission if logged in user is vendor
+        return True
+    else:
+        raise PermissionDenied
+    
+# Restricting the customer from accessing vendor page
+def check_role_customer(user):
+    if user.role == 2:                     #gives the permission if logged in user is customer
+        return True
+    else:
+        raise PermissionDenied   
 
 def registerUser(request):
-    if request.method=='POST':
+    if request.user.is_authenticated:
+        messages.warning(request, 'You are already logged in!')
+        return redirect('dashboard')
+    
+    elif request.method=='POST':
         form = UserForm(request.POST)
         if form.is_valid():
             # user = form.save(commit=False)      #The user is ready to be saved but not yet saved which means we can still alter it
@@ -39,6 +61,10 @@ def registerUser(request):
     return render(request, 'accounts/registerUser.html', context)
 
 def registerVendor(request):
+    if request.user.is_authenticated:
+        messages.warning(request, 'YOu are already logged in!')
+        return redirect('dashboard')
+    
     if request.method=='POST':
         # store the data and create user
         form = UserForm(request.POST)
@@ -71,3 +97,46 @@ def registerVendor(request):
         'v_form' : v_form
     }
     return render(request, 'accounts/registerVendor.html', context)
+
+def login(request):
+    if request.user.is_authenticated:
+        messages.warning(request, 'You are already logged in!')
+        return redirect('myAccount')
+    
+    elif request.method=='POST':
+        email = request.POST['email']
+        password = request.POST['password']
+        user = authenticate(email=email, password=password)
+
+        if user:
+            login_user(request, user)
+            messages.success(request, 'You are now logged in')
+            return redirect('myAccount')
+        
+        else:
+            messages.error(request, 'Invalid crediantials')
+            return redirect('login')
+
+        
+    return render(request, 'accounts/login.html')
+
+def logout(request):
+    logout_user(request)
+    messages.info(request, 'You are logged out')
+    return redirect('login')
+
+@login_required(login_url='login')
+def myAccount(request):                   #function to take the customer and vendor to it's respective dashboard
+    user = request.user
+    redirectUrl = detectUser(user)
+    return redirect(redirectUrl)
+
+@login_required(login_url='login')
+@user_passes_test(check_role_customer)
+def customerDashboard(request):
+    return render(request, 'accounts/customerDashboard.html')
+
+@login_required(login_url='login')
+@user_passes_test(check_role_vendor)
+def vendorDashboard(request):
+    return render(request, 'accounts/vendorDashboard.html')
