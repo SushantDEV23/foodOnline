@@ -7,5 +7,6 @@ urlpatterns = [
     path('logout/', logout, name='logout'),
     path('myAccount/', myAccount, name='myAccount'),
     path('customerDashboard', customerDashboard, name='customerDashboard'),
-    path('vendorDashboard', vendorDashboard, name='vendorDashboard')
+    path('vendorDashboard', vendorDashboard, name='vendorDashboard'),
+    path('activate/<uidb64>/<token>/', activate, name='activate')
 ]
