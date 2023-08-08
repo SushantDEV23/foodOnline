@@ -1,5 +1,10 @@
+from typing import Any, Dict, Mapping, Optional, Type, Union
 from django import forms
+from django.core.files.base import File
+from django.db.models.base import Model
+from django.forms.utils import ErrorList
 from .models import User, UserProfile
+from .validators import allow_only_iamge_validator
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
@@ -19,9 +24,19 @@ class UserForm(forms.ModelForm):
             )
         
 class UserProfileForm(forms.ModelForm):
-    profile_picture = forms.ImageField(widget=forms.FileInput(attrs={'class':'btn btn-info'}))
-    cover_picture = forms.ImageField(widget=forms.FileInput(attrs={'class':'btn btn-info'}))
+    address = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Start Typing....', 'required':'required'}))
+    profile_picture = forms.FileField(widget=forms.FileInput(attrs={'class':'btn btn-info'}), validators=[allow_only_iamge_validator])
+    cover_picture = forms.FileField(widget=forms.FileInput(attrs={'class':'btn btn-info'}), validators=[allow_only_iamge_validator])
+
+    # latitude = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
+    # longitude = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))    #an alternative mostly used way is __init__ which done below
 
     class Meta:
         model = UserProfile
-        fields = ['profile_picture', 'cover_picture', 'address_line_1', 'address_line_2', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
+        fields = ['profile_picture', 'cover_picture', 'address', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
+
+    def __init__(self, *args, **kwargs): 
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            if field == 'latitude' or field == 'longitude':
+                self.fields[field].widget.attrs['readonly'] = 'readonly'
