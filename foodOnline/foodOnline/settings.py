@@ -66,7 +66,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'accounts.context_processor.get_vendor'
+                'accounts.context_processor.get_vendor',
+                'accounts.context_processor.get_google_api'
             ],
         },
     },
@@ -153,3 +154,6 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+
+#Api for autocomplete search
+HERE_API_KEY = 'AIzaSyC4yTudrg9pTcB2khAgrbCMBfvvbviOhVU'     #Fake one
