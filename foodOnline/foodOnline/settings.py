@@ -156,4 +156,4 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
 #Api for autocomplete search
-HERE_API_KEY = 'AIzaSyC4yTudrg9pTcB2khAgrbCMBfvvbviOhVU'     #Fake one
+HERE_API_KEY = 'AIzaSyC4yTudrg9pTcB2khAgrbCMBfvvbvihVU'     #Fake one
