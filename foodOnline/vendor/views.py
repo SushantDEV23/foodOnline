@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from accounts.views import check_role_vendor
 from menu.models import *
-from menu.forms import CategoryForm
+from menu.forms import CategoryForm, FoodItemForm
 from django.template.defaultfilters import slugify
 
 def get_vendor(request):                      # Call this function when getting vendor object
@@ -67,6 +67,8 @@ def fooditems_by_category(request, pk=None):
     return render(request, 'vendor/fooditems_by_category.html', context)
 
 
+
+#Below code for Add Category CRUD 
 def add_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -115,3 +117,25 @@ def delete_category(request, pk=None):
     messages.success(request, 'Category Deleted Successfuly!! ')
     return redirect('menu_builder')
 
+
+# Below code Add food CRUD
+def add_food(request):
+    if request.method == 'POST':
+        form = FoodItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            foodtitle = form.cleaned_data['food_title']
+            food = form.save(commit=False)
+            food.vendor = get_vendor(request)
+            food.slug = slugify(foodtitle)
+            form.save()
+            messages.success(request, 'Food Item Added Successfuly!! ')
+            return redirect('fooditems_by_category', food.category.id)
+        else:
+            print(form.errors)
+    else:
+        form = FoodItemForm()
+    context = {
+        'form':form,
+    }
+
+    return render(request, 'vendor/add_food.html', context)
